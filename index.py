@@ -51,37 +51,47 @@ def listar_herois():
     return herois
 
 def dano_nevoa():
-    conn = get_connection()
-    cursor = conn.cursor()
+    with get_connection() as con:
+        with con.cursor() as cur:  
+            sql = """
+                DECLARE
 
-    plsql = """
-    BEGIN
-        FOR i IN (
-            SELECT id_heroi, hp_atual
-            FROM TB_HEROIS
-            WHERE status = 'ATIVO'
-        ) LOOP
+                    v_dano TB_HEROIS.hp_atual%TYPE := 10;
+                    v_novo_hp TB_HEROIS.hp_atual%TYPE;
 
-            IF i.hp_atual - 10 <= 0 THEN
-                UPDATE TB_HEROIS
-                SET hp_atual = 0,
-                    status = 'CAIDO'
-                WHERE id_heroi = i.id_heroi;
-            ELSE
-                UPDATE TB_HEROIS
-                SET hp_atual = i.hp_atual - 10
-                WHERE id_heroi = i.id_heroi;
-            END IF;
+                BEGIN 
 
-        END LOOP;
-    END;
-    """
+                    FOR i IN (
+                        SELECT id_heroi, hp_atual
+                        FROM TB_HEROIS
+                        WHERE status = 'ATIVO'
+                    ) 
 
-    cursor.execute(plsql)
-    conn.commit()
+                    LOOP
 
-    cursor.close()
-    conn.close()
+                        v_novo_hp := i.hp_atual - v_dano;
+
+                        IF v_novo_hp <= 0 THEN
+
+                            UPDATE TB_HEROIS
+                            SET hp_atual = 0,
+                            status = 'CAIDO'
+                            WHERE id_heroi = i.id_heroi;
+
+                        ELSE
+
+                            UPDATE TB_HEROIS
+                            SET hp_atual = v_novo_hp
+                            WHERE id_heroi = i.id_heroi;
+
+                        END IF;
+
+                    END LOOP;
+
+                END;
+            """
+            cur.execute(sql)
+        con.commit()
 
 @app.route("/")
 def home():
