@@ -36,7 +36,6 @@ def listar_herois():
     cursor.close()
     conn.close()
 
-    # Converter para JSON (IMPORTANTE)
     herois = []
 
     for h in dados:

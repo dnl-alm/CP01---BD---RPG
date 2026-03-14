@@ -97,7 +97,10 @@ async function carregarHerois(){
 
     const resposta = await fetch("/herois");
     const dados = await resposta.json();
-    const herois = dados.herois;
+
+    console.log(dados); // DEBUG
+
+    const herois = dados.herois || dados;
 
     const tabela = document.getElementById("tabelaHerois");
     tabela.innerHTML = "";
@@ -129,14 +132,12 @@ async function carregarHerois(){
 
 async function proximoTurno(){
 
-    await fetch("/dano-nevoa", {
-        method: "POST"
-    });
+    await fetch("/dano-nevoa", { method: "POST" });
 
     carregarHerois();
 }
 
-carregarHerois();
+window.onload = carregarHerois;
 
 </script>
 
