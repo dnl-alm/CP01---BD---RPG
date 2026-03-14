@@ -104,9 +104,11 @@ Próximo Turno
 
 async function carregarHerois(){
 
-    const resposta = await fetch("/herois");
-    const dados = await resposta.json();
+    const resposta = await fetch(
+        window.location.origin + "/herois"
+    );
 
+    const dados = await resposta.json();
     const herois = dados.herois;
 
     const tabela = document.getElementById("tabelaHerois");
@@ -122,25 +124,23 @@ async function carregarHerois(){
             <td>${h.nome}</td>
             <td>${h.classe}</td>
             <td>${h.hp_atual}/${h.hp_max}</td>
-
             <td>
                 <div class="hp-bar">
                     <div class="hp" style="width:${porcentagem}%"></div>
                 </div>
             </td>
-
             <td>${h.status}</td>
         </tr>
         `;
     });
-
 }
 
 async function proximoTurno(){
 
-    await fetch("/dano-nevoa", {
-        method: "POST"
-    });
+    await fetch(
+        window.location.origin + "/dano-nevoa",
+        { method: "POST" }
+    );
 
     carregarHerois();
 }
