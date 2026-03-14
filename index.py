@@ -36,7 +36,20 @@ def listar_herois():
     cursor.close()
     conn.close()
 
-    return dados
+    # Converter para JSON (IMPORTANTE)
+    herois = []
+
+    for h in dados:
+        herois.append({
+            "id_heroi": h[0],
+            "nome": h[1],
+            "classe": h[2],
+            "hp_atual": h[3],
+            "hp_max": h[4],
+            "status": h[5]
+        })
+
+    return herois
 
 def dano_nevoa():
     conn = get_connection()
