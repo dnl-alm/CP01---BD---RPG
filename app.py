@@ -8,6 +8,8 @@ app = Flask(
     template_folder=os.path.join(os.path.dirname(__file__), "templates")
 )
 
+CORS(app)
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -18,7 +20,7 @@ def get_herois():
     herois = banco.listar_herois()
     return {"herois": herois}, 200
 
-@app.route("/dano-nevoa", methods=["PUT"])
+@app.route("/dano-nevoa", methods=["POST"])
 def processar():
     banco.dano_nevoa()
     return jsonify({"msg": "Turno processado"})

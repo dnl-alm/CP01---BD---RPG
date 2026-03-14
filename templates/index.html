@@ -139,7 +139,7 @@ async function carregarHerois(){
 async function proximoTurno(){
 
     await fetch("/dano-nevoa", {
-        method: "PUT"
+        method: "POST"
     });
 
     carregarHerois();
