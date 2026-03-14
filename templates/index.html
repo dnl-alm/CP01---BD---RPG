@@ -104,7 +104,7 @@ Próximo Turno
 
 async function carregarHerois(){
 
-    const resposta = await fetch("/api/herois");
+    const resposta = await fetch("/herois");
     const dados = await resposta.json();
 
     const herois = dados.herois;
@@ -138,7 +138,7 @@ async function carregarHerois(){
 
 async function proximoTurno(){
 
-    await fetch("/api/dano-nevoa", {
+    await fetch("/dano-nevoa", {
         method: "PUT"
     });
 
