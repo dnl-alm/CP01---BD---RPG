@@ -1,0 +1,89 @@
+from flask import Flask, jsonify, render_template, redirect, url_for
+import oracledb
+import os
+
+app = Flask(
+    __name__,
+    template_folder=os.path.join(os.path.dirname(__file__), "templates")
+)
+
+def get_connection():
+    
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    dsn_string = os.getenv("DB_DSN")
+
+    conn = oracledb.connect(
+        user=user,
+        password=password,
+        dsn=dsn_string
+    )
+
+    return conn
+
+def listar_herois():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id_heroi, nome, classe, hp_atual, hp_max, status
+        FROM TB_HEROIS
+        ORDER BY id_heroi
+    """)
+
+    dados = cursor.fetchall()
+
+    cursor.close()
+    conn.close()
+
+    return dados
+
+def dano_nevoa():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    plsql = """
+    BEGIN
+        FOR i IN (
+            SELECT id_heroi, hp_atual
+            FROM TB_HEROIS
+            WHERE status = 'ATIVO'
+        ) LOOP
+
+            IF i.hp_atual - 10 <= 0 THEN
+                UPDATE TB_HEROIS
+                SET hp_atual = 0,
+                    status = 'CAIDO'
+                WHERE id_heroi = i.id_heroi;
+            ELSE
+                UPDATE TB_HEROIS
+                SET hp_atual = i.hp_atual - 10
+                WHERE id_heroi = i.id_heroi;
+            END IF;
+
+        END LOOP;
+    END;
+    """
+
+    cursor.execute(plsql)
+    conn.commit()
+
+    cursor.close()
+    conn.close()
+
+@app.route("/")
+def home():
+    herois = listar_herois()
+    return render_template("index.html", herois=herois)
+
+@app.route("/herois")
+def get_herois():
+    return jsonify({"herois": listar_herois()})
+
+@app.route("/dano-nevoa", methods=["POST"])
+def processar():
+    dano_nevoa()
+    return jsonify({"msg": "Turno processado"})
+
+if __name__ == "__main__":
+    app.run(debug=True)
